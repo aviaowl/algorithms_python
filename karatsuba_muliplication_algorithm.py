@@ -16,34 +16,30 @@ Complexity: O(N**log 3)
 
 
 class Solution:
-    def multiply(self, num1: str, num2: str):
-        if len(num1) == 1 or len(num2) == 1:
-            return int(num1) * int(num2)
+    def multiply(self, num1, num2):
+        def karatsuba(num1: int, num2: int):
+            len1, len2 = len(str(num1)), len(str(num2))
+            if len1 == 1 or len2 == 1:
+                return num1 * num2
 
-        # if arguments have different length, add leading zeros to shorter argument
-        if len(num1) != len(num2):
-            x = max(num1, num2, key=len)
-            y = '0' * abs(len(num1) - len(num2)) + min(num1, num2, key=len)
-        else:
-            x, y = num1, num2
-        n = len(x)
-        half_n = ceil(n / 2)
+            x, y = int(num1), int(num2)
+            half_n = max(len1, len2) // 2
 
-        # if arguments have odd length, add leading zero to make them even
-        if n % 2 != 0:
-            x = '0' + x
-            y = '0' + y
+            a = x // 10 ** half_n
+            b = x % 10 ** half_n
+            c = y // 10 ** half_n
+            d = y % 10 ** half_n
 
-        a, b = int(x[0:half_n]), int(x[half_n:])
-        c, d = int(y[0:half_n]), int(y[half_n:])
+            ac = karatsuba(a, c)
+            bd = karatsuba(b, d)
+            ad_plus_bd = karatsuba(a + b, c + d)
 
-        ac = self.multiply(str(a), str(c))
-        bd = self.multiply(str(b), str(d))
-        ad_plus_bd = self.multiply(str(a + b), str(c + d))
+            # writing n as 2*half_n takes care of both even and odd n
+            ten_n = 10 ** (2 * half_n)
+            ten_half_n = 10 ** half_n
+            return (ten_n * ac) + (ten_half_n * (ad_plus_bd - ac - bd)) + bd
 
-        ten_n = 10 ** n
-        ten_half_n = 10 ** half_n
-        return (ten_n * ac) + (ten_half_n * (ad_plus_bd - ac - bd)) + bd
+        return str(karatsuba(int(num1), int(num2)))
 
 
 sol = Solution()
